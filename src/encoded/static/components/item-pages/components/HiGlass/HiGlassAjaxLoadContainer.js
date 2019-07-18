@@ -120,6 +120,9 @@ export class HiGlassAjaxLoadContainer extends React.PureComponent {
                 this.setState({ 'higlassItem' : r,'loading': false });
             });
         });
+        static defaultProps = {
+            height : HiGlassPlainContainer.defaultProps.height
+        };
     }
     render(){
         var { higlassItem, loading } = this.state;

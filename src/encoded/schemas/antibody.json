@@ -20,7 +20,7 @@
         { "$ref": "mixins.json#/facets_common" }
     ],
     "type": "object",
-    "required": [ "antibody_name", "award", "lab"],
+    "required": [ "antibody_name", "antibody_product_no", "award", "lab"],
     "identifyingProperties": ["uuid","aliases","antibody_id"],
     "properties": {
         "schema_version": {
