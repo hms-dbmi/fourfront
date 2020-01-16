@@ -32,7 +32,7 @@ log = structlog.getLogger(__name__)
 
 ONLY_ADMIN_VIEW_DETAILS = [
     (Allow, 'group.admin', ['view', 'view_details', 'edit']),
-    (Allow, 'group.read-only-admin', ['view', 'view_details']),
+    (Allow, 'group.read-only-admin', ['view', 'view_raw', 'view_details']),
     (Allow, 'remoteuser.INDEXER', ['view']),
     (Allow, 'remoteuser.EMBED', ['view']),
     (Deny, Everyone, ['view', 'view_details', 'edit']),

@@ -36,7 +36,7 @@ class Award(Item):
     # define some customs acls; awards can only be created/edited by admin
     ONLY_ADMIN_VIEW = [
         (Allow, 'group.admin', ['view', 'edit']),
-        (Allow, 'group.read-only-admin', ['view']),
+        (Allow, 'group.read-only-admin', ['view', 'view_raw']),
         (Allow, 'remoteuser.INDEXER', ['view']),
         (Allow, 'remoteuser.EMBED', ['view']),
         (Deny, Everyone, ['view', 'edit'])

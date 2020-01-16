@@ -96,5 +96,14 @@
         "last_name": "Test",
         "viewing_groups": ["4DN"],
         "submits_for": ["dcic-testing-lab"]
+    },
+    {
+        "email": "read-only-admin@4DN.com",
+        "first_name": "Viewer",
+        "groups": ["read-only-admin"],
+        "lab": "test-4dn-lab",
+        "last_name": "Only",
+        "status": "current",
+        "uuid": "dae7fbc7-0786-43b2-a9a3-123ab27cc379"
     }
 ]

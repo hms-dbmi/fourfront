@@ -61,6 +61,20 @@ def wrangler(testapp):
 
 
 @pytest.fixture
+def admin_viewer(testapp):
+    item = {
+        'first_name': 'View Only',
+        'last_name': 'Admin',
+        'email': 'adminview@example.org',
+        'groups': ['read-only-admin'],
+    }
+
+    # User @@object view has keys omitted.
+    res = testapp.post_json('/user', item)
+    return testapp.get(res.location).json
+
+
+@pytest.fixture
 def lab_viewer(testapp, lab, award):
     item = {
         'first_name': 'ENCODE',
@@ -231,6 +245,11 @@ def wrangler_testapp(wrangler, app, external_tx, zsa_savepoints):
 
 
 @pytest.fixture
+def admin_viewer_testapp(admin_viewer, app, external_tx, zsa_savepoints):
+    return remote_user_testapp(app, admin_viewer['uuid'])
+
+
+@pytest.fixture
 def remc_member_testapp(remc_submitter, app, external_tx, zsa_savepoints):
     return remote_user_testapp(app, remc_submitter['uuid'])
 
@@ -289,6 +308,25 @@ def test_submitter_cant_post_non_lab_collection(submitter_testapp):
         'taxon_id': '9606',
     }
     return submitter_testapp.post_json('/organism', item, status=403)
+
+
+def test_admin_viewer_can_view_all_stati(wrangler_testapp, admin_viewer_testapp, ind_human_item):
+    statuses = ['released', 'revoked', 'archived', 'released to project',
+                'archived to project', 'in review by lab', 'submission in progress',
+                'pre-release', 'planned', 'deleted', 'obsolete', 'replaced']
+    res = wrangler_testapp.post_json('/individual_human', ind_human_item, status=201)
+    for status in statuses:
+        pres = wrangler_testapp.patch_json(res.json['@graph'][0]['@id'], {"status": status}, status=200)
+        admin_viewer_testapp.get(pres.json['@graph'][0]['@id'], status=200)
+
+
+def test_admin_viewer_cant_post(admin_viewer_testapp, ind_human_item):
+    res = admin_viewer_testapp.post_json('/individual_human', ind_human_item, status=403)
+
+
+def test_admin_viewer_cant_patch(wrangler_testapp, admin_viewer_testapp, ind_human_item):
+    res = wrangler_testapp.post_json('/individual_human', ind_human_item, status=201)
+    admin_viewer_testapp.patch_json(res.json['@graph'][0]['@id'], status=400)
 
 
 def test_submitter_post_update_experiment(submitter_testapp, lab, award, human_biosample, exp_types):

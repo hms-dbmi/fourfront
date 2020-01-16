@@ -215,6 +215,7 @@ class FourfrontRoot(Root):
         acl = acl_from_settings(self.registry.settings) + [
             (Allow, Everyone, ['list', 'search']),
             (Allow, 'group.admin', ALL_PERMISSIONS),
+            (Allow, 'group.read-only-admin', ['view', 'view_raw', 'list']),
             (Allow, 'remoteuser.EMBED', 'import_items'),
         ] + [(Allow, 'remoteuser.INDEXER', ['view', 'view_raw', 'list', 'index']),
         (Allow, 'remoteuser.EMBED', ['view', 'view_raw', 'expand']),
