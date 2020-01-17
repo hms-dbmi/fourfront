@@ -320,6 +320,15 @@ def test_admin_viewer_can_view_all_stati(wrangler_testapp, admin_viewer_testapp,
         admin_viewer_testapp.get(pres.json['@graph'][0]['@id'], status=200)
 
 
+def test_admin_viewer_can_view_raw(wrangler_testapp, admin_viewer_testapp, ind_human_item):
+    """ Tests that read-only-admins can view items with frame=raw """
+    res = wrangler_testapp.post_json('/individual_human', ind_human_item, status=201).json
+    id = res['@graph'][0]['@id']
+    admin_viewer_testapp.get(id, status=200)  # should be able to see normally
+    admin_viewer_testapp.get(id + '?frame=raw', status=200)  # should be able to see raw
+    admin_viewer_testapp.get(id + '?datastore=database', status=200)
+
+
 def test_admin_viewer_cant_post(admin_viewer_testapp, ind_human_item):
     res = admin_viewer_testapp.post_json('/individual_human', ind_human_item, status=403)
 
