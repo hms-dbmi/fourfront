@@ -192,5 +192,19 @@
         "viewing_groups": ["4DN"],
         "groups": ["admin"],
         "submits_for": ["4dn-dcic-lab"]
-    }
+    },
+    {
+        "viewing_groups": ["4DN"],
+        "first_name": "Clara",
+        "groups": ["admin"],
+        "last_name": "Bakker",
+        "timezone": "US/Eastern",
+        "email": "clara_bakker@hms.harvard.edu",
+        "submits_for": ["4dn-dcic-lab"],
+        "aliases": ["4dn-dcic-lab:clara_bakker_dcic"],
+        "lab": "4dn-dcic-lab",
+        "uuid": "545f1931-792c-4a7e-83b3-3e91baea4e30",
+        "status": "current",
+        "job_title": "Staff"
+      }
 ]
