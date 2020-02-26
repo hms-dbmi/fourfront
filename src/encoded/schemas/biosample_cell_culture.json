@@ -83,6 +83,13 @@
             "type": "string",
             "lookup": 90
         },
+        "SOP_cell_line": {
+            "title": "Cell Culture Protocol",
+            "description": "This field should be used to link to the protocol used to culture the cells - NOTE that if you are using a 4DN Tiered cell line and following the 4DN protocol then you should leave this field blank, HOWEVER, if you are using an untiered cell line you should link a Protocol even if it is one of the 4DN ones in this field",
+            "type": "string",
+            "linkTo": "Protocol",
+            "lookup": 96
+        },
         "protocols_additional": {
             "title": "Additional Protocols used in Cell Culture",
             "description": "Protocols including additional culture manipulations such as stem cell differentiation or cell cycle synchronization.",
@@ -138,7 +145,7 @@
             "title": "Morphology Image",
             "description": "Photo of Cell Morphology at the time of collection",
             "type": "string",
-            "lookup": 130,
+            "lookup": 95,
             "linkTo": "Image"
         },
         "karyotype": {
