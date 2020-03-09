@@ -63,6 +63,9 @@
             "lookup": 2,
             "linkEnum": ["7745b647-ff15-4ff3-9ced-b897d4e2983c"]
         },
+        "individual_relation": {
+            "exclude_from": ["submit4dn", "FFedit-create"]
+        },
         "dbxrefs": {
             "@type": "@id",
             "rdfs:subPropertyOf": "rdfs:seeAlso",

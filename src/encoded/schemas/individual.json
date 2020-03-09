@@ -54,6 +54,39 @@
                 "mixed"
             ]
         },
+        "individual_relation": {
+            "title": "Individual Relations",
+            "description": "Related individuals",
+            "type": "array",
+            "uniqueItems": true,
+            "maxItems": 2,
+            "ff_flag": "second round",
+            "items": {
+                "title": "Individual relation",
+                "required": ["relationship_type", "individual"],
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                    "relationship_type": {
+                        "type": "string",
+                        "lookup": 80,
+                        "description": "A controlled term specifying the relationship between individuals.",
+                        "title": "Relationship Type",
+                        "enum": [
+                            "derived from (maternal strain)",
+                            "derived from (paternal strain)",
+                            "derived from"
+                        ]
+                    },
+                    "individual": {
+                        "type": "string",
+                        "lookup": 85,
+                        "description": "The related individual",
+                        "linkTo": "Individual"
+                    }
+                }
+            }
+        },
         "url": {
             "title": "URL",
             "lookup": 1000,
