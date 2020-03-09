@@ -32,7 +32,8 @@ class Biosample(Item):  # CalculatedBiosampleSlims, CalculatedBiosampleSynonyms)
             "badge.@id",
             "badge.badge_icon",
             "badge.description"
-        ]
+        ],
+        "SOP_cell_line": ["display_title"]
     }
     embedded_list = Item.embedded_list + lab_award_attribution_embed_list + [
         'badges.badge.title',
@@ -51,6 +52,7 @@ class Biosample(Item):  # CalculatedBiosampleSlims, CalculatedBiosampleSynonyms)
         "biosource.cell_line_tier",
         "biosource.tissue.slim_terms",
         "biosource.tissue.synonyms",
+        "biosource.SOP_cell_line",
         'cell_culture_details.*',
         'cell_culture_details.morphology_image.caption',
         'cell_culture_details.morphology_image.attachment.href',
