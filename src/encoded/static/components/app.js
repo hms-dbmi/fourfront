@@ -335,6 +335,7 @@ export default class App extends React.PureComponent {
         }
 
         // We could migrate this block of code to ChartDataController if it were stored in Redux.
+        // Explicitly update ChartDataController's barplot data if session changes.
         if (prevState.session !== session && ChartDataController.isInitialized()){
             setTimeout(function(){
                 console.log("SYNCING CHART DATA");

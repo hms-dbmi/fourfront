@@ -16,6 +16,10 @@ import { navigate } from './../util';
  * @module {Object} viz/chart-data-controller
  */
 
+const defaultInitialFields = [
+    'experiments_in_set.experiment_type.display_title',
+    'experiments_in_set.biosample.biosource.individual.organism.name'
+];
 
 /**
  * These are cached values or references.
@@ -61,9 +65,10 @@ const currentRequests = { filtered: null, unfiltered: null };
  * After load & update, called to start any registered 'on update' callbacks.
  */
 function notifyUpdateCallbacks(){
+    const providerCallbackIDs = Object.keys(providerCallbacks);
     console.log('Notifying update callbacks',_.keys(providerCallbacks));
-    _.forEach(providerCallbacks, function(pcb){
-        pcb(state);
+    providerCallbackIDs.forEach(function(pcbID){
+        providerCallbacks[pcbID](state);
     });
 }
 
@@ -132,7 +137,8 @@ class Provider extends React.PureComponent {
 
     static propTypes = {
         'id' : PropTypes.string,
-        'children' : PropTypes.object.isRequired
+        'children' : PropTypes.object.isRequired,
+        'initialFields' : PropTypes.arrayOf(PropTypes.string)
     };
 
     constructor(props){
@@ -140,6 +146,7 @@ class Provider extends React.PureComponent {
         if (typeof props.id === 'string') this.id = props.id;
         else this.id = object.randomId();
 
+        // Counts how much itself gets updated by ChartDataController
         this.state = { 'updateCount' : 0 };
     }
 
@@ -154,11 +161,12 @@ class Provider extends React.PureComponent {
      * @returns {void} Nothing
      */
     componentDidMount(){
+        const { initialFields } = this.props;
         ChartDataController.registerUpdateCallback(()=>{
             this.setState(function({ updateCount }){
                 return { 'updateCount' : updateCount + 1 };
             });
-        }, this.id);
+        }, this.id, false, initialFields);
     }
 
     /**
@@ -171,6 +179,7 @@ class Provider extends React.PureComponent {
      * @returns {void} Nothing
      */
     componentWillUnmount(){
+        console.log("WILL UNMOUNT", this.id);
         ChartDataController.unregisterUpdateCallback(this.id);
     }
 
@@ -216,7 +225,17 @@ export const ChartDataController = {
      * @param {?function} [callback]            Optional callback for after initializing.
      * @returns {void} Undefined
      */
-    initialize : function(browseBaseState = null, fields = null, callback = null){
+    initialize : function(
+        fields = null,
+        callback = function(currState){ console.info("Initialized ChartDataController", currState); }
+    ){
+
+        if (isInitialized) {
+            console.dir(state);
+            console.dir(refs);
+            throw new Error("ChartDataController is already initialized");
+        }
+
         if (!refs.store) refs.store = require('./../../store').store;
 
         const initStoreState = refs.store.getState();
@@ -224,12 +243,14 @@ export const ChartDataController = {
 
         refs.href = initStoreState.href;
         refs.contextFilters = (isBrowseHrefOnInit && initStoreState.context && initStoreState.context.filters) || [];
+        refs.browseBaseState = (typeof browseBaseState === 'string' && browseBaseState) || initStoreState.browseBaseState;
 
-        if (typeof browseBaseState === 'string'){
-            refs.browseBaseState = browseBaseState;
-        }
         if (Array.isArray(fields) && fields.length > 0){
             state.barplot_data_fields = fields;
+        } else if (fields === null) {
+            // We need some global default like `defaultInitialFields` else endpoint will throw exception.
+            // If re-initializing and no explicit initialFields from Provider, try to use existing ones in state.
+            state.barplot_data_fields = state.barplot_data_fields || defaultInitialFields;
         }
 
         if (reduxSubscription !== null) {
@@ -283,6 +304,7 @@ export const ChartDataController = {
 
         isInitialized = true;
 
+        // Maybe TODO: Skip if `state.barplot_data_unfiltered` is present, context.filters are blank (since existing data is cached), and fields are the same as `state.barplot_data_fields`.
         ChartDataController.sync(function(){
             isInitialLoadComplete = true;
             callback(state);
@@ -312,15 +334,22 @@ export const ChartDataController = {
      *
      * @public
      * @static
-     * @param {function} callback - Function to be called upon loading 'experiments' or 'all experiments'. If registering from a React component, should include this.forceUpdate() or this.setState(..).
-     * @param {string}   uniqueID - A unique identifier for the registered callback, to be used for removal or overwrites.
+     * @param {function}        callback - Function to be called upon loading 'experiments' or 'all experiments'. If registering from a React component, should include this.forceUpdate() or this.setState(..).
+     * @param {string}          uniqueID - A unique identifier for the registered callback, to be used for removal or overwrites.
+     * @param {Array.<string>}  initialFields - If present, will be passed to initialize().
      * @returns {function}   A function which may be called to unregister the callback, in lieu of ChartDataController.unregisterUpdateCallback.
      */
-    registerUpdateCallback : function(callback, uniqueID = 'global', overwrite=false){
+    registerUpdateCallback : function(callback, uniqueID = 'global', overwrite=false, initialFields = undefined){
         if (typeof callback !== 'function') throw Error("callback must be a function.");
         if (typeof uniqueID !== 'string') throw Error("uniqueID must be a string.");
         if (!overwrite && typeof providerCallbacks[uniqueID] !== 'undefined') throw new Error(uniqueID + " already set.");
         providerCallbacks[uniqueID] = callback;
+
+        // Initialize if is first one added.
+        if (!isInitialized) {
+            ChartDataController.initialize(initialFields);
+        }
+
         return function(){
             return ChartDataController.unregisterUpdateCallback(uniqueID);
         };
@@ -337,6 +366,22 @@ export const ChartDataController = {
     unregisterUpdateCallback : function(uniqueID){
         if (typeof uniqueID !== 'string') throw Error("uniqueID must be a string.");
         delete providerCallbacks[uniqueID];
+
+        const remainingLength = Object.keys(providerCallbacks).length;
+        if (remainingLength === 0) {
+            console.warn("De-initializing ChartDataController");
+            // De-initialize self & current listener, allow for another Provider's initialFields to take effect if needed.
+            if (reduxSubscription !== null) {
+                reduxSubscription(); // Unsubscribe current listener.
+                state.barplot_data_filtered = null;
+                // Allow to remain as sort of cache (some things that rely on these values after init may error also)
+                // state.barplot_data_unfiltered = null;
+                // state.barplot_data_fields = null;
+                state.isLoadingChartData = false;
+                isInitialized = false;
+            }
+        }
+
     },
 
     /**
@@ -373,16 +418,20 @@ export const ChartDataController = {
     /**
      * Updates fields for which BarPlot aggregations are performed.
      */
-    updateBarPlotFields : function(fields, callback = null){
-        if (Array.isArray(fields) && Array.isArray(state.barplot_data_fields)){
-            if (fields.length === state.barplot_data_fields.length){
-                // Cancel if fields are same as before.
-                if (_.every(fields, function(f,i){
+    updateBarPlotFields : function(nextFields, callback = null){
+        if (Array.isArray(nextFields) && Array.isArray(state.barplot_data_fields)){
+            if (nextFields.length === state.barplot_data_fields.length){
+                // Cancel if fields are same as before. (order matters)
+                if (_.every(nextFields, function(f,i){
                     return (f === state.barplot_data_fields[i]);
-                })) return;
+                })){
+                    console.warn("updateBarPlotFields: Same fields detected, canceling update.");
+                    callback(state);
+                    return;
+                }
             }
         }
-        ChartDataController.setState({ 'barplot_data_fields' : fields, 'isLoadingChartData' : true }, callback);
+        ChartDataController.setState({ 'barplot_data_fields' : nextFields, 'isLoadingChartData' : true }, callback);
         ChartDataController.sync();
     },
 

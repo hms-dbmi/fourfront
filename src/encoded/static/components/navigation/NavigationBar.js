@@ -145,9 +145,7 @@ export class NavigationBar extends React.PureComponent {
                             <CollapsedNav {...this.props} {...{ testWarningVisible, mounted }} />
                         </Navbar>
                     </div>
-                    <ChartDataController.Provider id="quick_info_bar1">
-                        <QuickInfoBar {...{ href, schemas, context, browseBaseState }} />
-                    </ChartDataController.Provider>
+                    <QuickInfoBar {...{ href, schemas, context, browseBaseState }} />
                 </div>
             </div>
         );

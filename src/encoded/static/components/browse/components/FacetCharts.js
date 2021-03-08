@@ -44,6 +44,8 @@ export class FacetCharts extends React.PureComponent {
             return false;
         },
         'views' : ['small', 'large'],
+        // This would override the global default initial fields in ChartDataController.initialize if were different.
+        // Maybe will remove these eventually -or- set to re-init on them if no other ChartDataController.Providers present on screen.
         'initialFields' : [
             'experiments_in_set.experiment_type.display_title',
             'experiments_in_set.biosample.biosource.individual.organism.name'
@@ -64,27 +66,8 @@ export class FacetCharts extends React.PureComponent {
         this.state = { 'mounted' : false };
     }
 
-    /**
-     * Updates `state.mounted`.
-     * Initializes ChartDataController if not yet initialized, which fetches data used for charts.
-     */
     componentDidMount(){
-        var { debug, browseBaseState, initialFields } = this.props;
-
-        if (!ChartDataController.isInitialized()){
-            ChartDataController.initialize(
-                browseBaseState,
-                initialFields,
-                ()=>{
-                    if (debug) console.log("Mounted FacetCharts after initializing ChartDataController:", ChartDataController.getState());
-                    setTimeout(() => this.setState({ 'mounted' : true }), 100);
-                }
-            );
-        } else {
-            if (debug) console.log('Mounted FacetCharts');
-            setTimeout(() => this.setState({ 'mounted' : true }), 100);
-        }
-
+        setTimeout(() => this.setState({ 'mounted' : true }), 100);
     }
 
     /**
@@ -201,7 +184,7 @@ export class FacetCharts extends React.PureComponent {
         const show = this.show();
         if (!show) return null; // We don't show section at all.
 
-        const { context, debug, windowWidth, colWidthPerScreenSize, schemas, href, isFullscreen } = this.props;
+        const { context, debug, windowWidth, colWidthPerScreenSize, schemas, href, isFullscreen, initialFields } = this.props;
         const { mounted } = this.state;
 
         if (context && context.total === 0) return null;
@@ -238,9 +221,11 @@ export class FacetCharts extends React.PureComponent {
 
         if (debug) console.log('FacetCharts SCHEMAS AT RENDER', schemas);
 
+        // props.initialFields are not used if already initialized.
+
         return (
             <div className={"facet-charts show-" + show} key="facet-charts">
-                <ChartDataController.Provider id="barplot1">
+                <ChartDataController.Provider id="barplot1" initialFields={initialFields}>
                     <BarPlot.UIControlsWrapper legend chartHeight={height} {...{ href, windowWidth, cursorDetailActions, expSetFilters }}>
                         <BarPlot.Chart {...{ width, height, schemas, windowWidth, href, cursorDetailActions, context }} />
                     </BarPlot.UIControlsWrapper>

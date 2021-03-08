@@ -13,7 +13,6 @@ import Registry from '@hms-dbmi-bgm/shared-portal-components/es/components/navig
 
 import { content_views } from './globals';
 import { typedefs } from './util';
-import QuickInfoBar from './viz/QuickInfoBar';
 import jsonScriptEscape from './../libs/jsonScriptEscape';
 import { EditableField, FieldSet } from '@hms-dbmi-bgm/shared-portal-components/es/components/forms/components/EditableField';
 // eslint-disable-next-line no-unused-vars
