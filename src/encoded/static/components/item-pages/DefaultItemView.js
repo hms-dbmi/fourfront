@@ -557,15 +557,27 @@ export class OverViewBodyItem extends React.PureComponent {
         },
         'imaging_paths_from_exp': function(field, value, allowJSX = true, includeDescriptionTips = true, index = null, wrapperElementType = 'div', fullObject = null){
             if (!value || typeof value !== 'object') return null;
-            var { channel, path } = value;
+            const { channel, path } = value;
+            const { imaging_rounds, experiment_type } = path || {};
 
-            var matchingFile = _.find(fullObject.files || [], fileUtil.getLightSourceCenterMicroscopeSettingFromFile.bind(this, channel));
-
+            const matchingFile = _.find(fullObject.files || [], fileUtil.getLightSourceCenterMicroscopeSettingFromFile.bind(this, channel));
             return (
                 <div className="imaging-path-item-wrapper row">
-                    <div className="index-num col-2 text-monospace text-500"><small>{ channel }</small></div>
-                    <div className={"imaging-path col-" + (matchingFile ? '7' : '10')}>{ object.itemUtil.generateLink(path, true) }</div>
-                    { matchingFile ? <div className="microscope-setting col-3 text-right" data-tip="Light Source Center Wavelength">{ fileUtil.getLightSourceCenterMicroscopeSettingFromFile(channel, matchingFile) }nm</div> : null }
+                    <div className="index-num col-1 text-monospace text-500"><small>{ channel }</small></div>
+                    <div className="index-num col-2 text-monospace text-500"><small>{ imaging_rounds || '-' }</small></div>
+                    <div className={"imaging-path col-3"}>{ object.itemUtil.generateLink(experiment_type, true) || '-' }</div>
+                    <div className={"imaging-path col-" + (matchingFile ? '5' : '6')}>{ object.itemUtil.generateLink(path, true) }</div>
+                    { matchingFile ? <div className="microscope-setting col-1 text-right" data-tip="Light Source Center Wavelength">{ fileUtil.getLightSourceCenterMicroscopeSettingFromFile(channel, matchingFile) }nm</div> : null }
+                </div>
+            );
+        },
+        'imaging_paths_header_from_exp': function(){
+            return (
+                <div className="imaging-path-item-wrapper row">
+                    <div className={"imaging-path col-1"}>{ 'Channel' }</div>
+                    <div className={"imaging-path col-2"}>{ 'Imaging Rounds' }</div>
+                    <div className={"imaging-path col-3"}>{ 'Experiment Type' }</div>
+                    <div className={"imaging-path col-6"}>{ 'Path' }</div>
                 </div>
             );
         }
@@ -635,7 +647,7 @@ export class OverViewBodyItem extends React.PureComponent {
     render(){
         const {
             result, property, fallbackValue, titleRenderFxn, addDescriptionTipForLinkTos, wrapInColumn,
-            singleItemClassName, overrideTitle, hideIfNoValue
+            singleItemClassName, overrideTitle: propOverrideTitle, hideIfNoValue
         } = this.props;
         let { propertyForLabel, listItemElement, listWrapperElement, listItemElementProps, listWrapperElementProps } = this.props;
 
@@ -653,6 +665,7 @@ export class OverViewBodyItem extends React.PureComponent {
             listItemElement = 'div';
             listWrapperElement = 'div';
         }
+        const overrideTitle = typeof propOverrideTitle === 'function' ? propOverrideTitle() : propOverrideTitle;
         const resultPropertyValue = property && this.createList(
             object.getNestedProperty(result, property),
             property,
@@ -689,7 +702,7 @@ export class OverViewBodyItem extends React.PureComponent {
         } else {
             innerBlockReturned = (
                 <div className="inner" key="inner" data-field={property}>
-                    <object.TooltipInfoIconContainerAuto {..._.pick(this.props, 'result', 'tips', 'fallbackTitle', 'schemas')} elementType="h5" property={propertyForLabel} title={this.props.overrideTitle} />
+                    <object.TooltipInfoIconContainerAuto {..._.pick(this.props, 'result', 'tips', 'fallbackTitle', 'schemas')} elementType="h5" property={propertyForLabel} title={overrideTitle} />
                     <div key="single-value" className={"overview-single-element" + (singleItemClassName ? ' ' + singleItemClassName : '') + ((!resultPropertyValue && property) ? ' no-value' : '')}>
                         { fallbackify(resultPropertyValue) }
                     </div>

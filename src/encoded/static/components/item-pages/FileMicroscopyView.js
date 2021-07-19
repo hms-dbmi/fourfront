@@ -128,7 +128,7 @@ const FileMicOverViewBody = React.memo(function FileMicOverViewBody(props){
                 { parentExperimentWithImagingPaths ?
                     <OverViewBodyItem
                         result={parentExperimentWithImagingPaths} tips={object.tipsFromSchema(schemas, parentExperimentWithImagingPaths)}
-                        wrapInColumn={"col-12 pull-right col-sm-" + (thumbnailLink ? '8' : '12')} property="imaging_paths" fallbackTitle="Imaging Paths"
+                        wrapInColumn={"col-12 pull-right col-sm-" + (thumbnailLink ? '8' : '12')} property="imaging_paths" fallbackTitle="Imaging Paths" overrideTitle={OverViewBodyItem.titleRenderPresets.imaging_paths_header_from_exp}
                         listItemElement="div" listWrapperElement="div" singleItemClassName="block" titleRenderFxn={OverViewBodyItem.titleRenderPresets.imaging_paths_from_exp} />
                     : null }
 
