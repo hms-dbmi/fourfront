@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import _, { clone } from 'underscore';
 import memoize from 'memoize-one';
 import OverlayTrigger from 'react-bootstrap/esm/OverlayTrigger';
-import { console, object } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, object, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 
 
 export function groupByMultiple(objList, propertiesList){
@@ -63,6 +63,7 @@ export function sumPropertyFromList(objList, property){
             return m + getCount(object.getNestedProperty(v, property));
         }, 0);
     } else {
+        console.log('Not an array');
         throw new Error('Not an array');
     }
 }

@@ -1,0 +1,12 @@
+{
+    "hostnameDNSMapping" : {
+        "data.4dnucleome.org" : "https://0d46fafce1d04ea2bfbe11ff15ca896e@o427308.ingest.sentry.io/5379985",
+        "mastertest.4dnucleome.org" : "https://ce359da106854a07aa67aabee873601c@o427308.ingest.sentry.io/5373642",
+        "staging.4dnucleome.org" : "https://0d46fafce1d04ea2bfbe11ff15ca896e@o427308.ingest.sentry.io/5379985",
+        "fourfront-hotseat.9wzadzju3p.us-east-1.elasticbeanstalk.com" : "",
+        "hotseat.4dnucleome.org" : "",
+        "localhost:8000" : "",
+        "localhost:6543" : "",
+        "default" : ""
+    }
+}

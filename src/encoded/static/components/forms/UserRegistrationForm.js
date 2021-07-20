@@ -6,7 +6,7 @@ import _ from 'underscore';
 import serialize from 'form-serialize';
 import memoize from 'memoize-one';
 
-import { console, object, ajax, JWT, analytics } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, object, ajax, JWT, analytics, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { LinkToSelector } from '@hms-dbmi-bgm/shared-portal-components/es/components/forms/components/LinkToSelector';
 import Collapse from 'react-bootstrap/esm/Collapse';
 
@@ -183,7 +183,7 @@ export default class UserRegistrationForm extends React.PureComponent {
                     // If validation failure, set / show status message, return;
                     // Else If unknown failure:
                     this.setState({ 'registrationStatus' : 'network-failure' });
-                    analytics.exception("Registration Error - Error on post to /create-unauthorized-user.", true);
+                    logger.error("Registration Error - Error on post to /create-unauthorized-user.");
                 },
                 JSON.stringify(formData)
             );

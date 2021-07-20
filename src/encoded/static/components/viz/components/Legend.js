@@ -5,7 +5,7 @@ import _ from 'underscore';
 import memoize from 'memoize-one';
 import * as vizUtil from '@hms-dbmi-bgm/shared-portal-components/es/components/viz/utilities';
 import { barplot_color_cycler } from './../ColorCycler';
-import { console, isServerSide, object } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, isServerSide, object, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { Schemas } from './../../util';
 import { CursorViewBounds } from './../ChartDetailCursor';
 import ReactTooltip from 'react-tooltip';
@@ -225,7 +225,7 @@ export class Legend extends React.PureComponent {
 
     static sortLegendFieldTermsByColorPalette(field, colorCycler){
         if (!colorCycler) {
-            console.error("No ColorCycler instance supplied.");
+            logger.error("No ColorCycler instance supplied.");
             return field.terms;
         }
         if (field.terms && field.terms[0] && field.terms[0].color === null){

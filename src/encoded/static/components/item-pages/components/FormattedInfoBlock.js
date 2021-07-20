@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
-import { ajax, console, isServerSide, object, analytics } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { ajax, console, isServerSide, object, analytics, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { PartialList } from '@hms-dbmi-bgm/shared-portal-components/es/components/ui/PartialList';
 import { generateAddressString, ContactPersonListItem } from './AttributionTabView';
 
@@ -178,7 +178,7 @@ class FormattedInfoBlockList extends React.Component {
                 });
                 console.log('Obtained details_'+ propertyName +' (' + results.length + ') via AJAX: ', results);
             }, 'GET', (res)=>{
-                console.error('Failed to get ' + propertyName + ': ' + endpoint);
+                logger.error('Failed to get ' + propertyName + ': ' + endpoint);
             });
         });
     }
@@ -343,6 +343,9 @@ export class FormattedInfoBlock extends React.Component {
                 'body' : error
             };
             this.setState(newStateAddition);
+            logger.error("AJAX Error: " + (error.title || 'N/A') + ' | ' +
+                'Detail: ' + (error.detail || 'N/A') + ' | ' +
+                'Description: ' + (error.description || 'N/A'));
             analytics.event('FormattedInfoBlock', 'ERROR', {
                 eventLabel : (
                     "AJAX Error: "  + (error.title       || 'N/A') + ' | ' +

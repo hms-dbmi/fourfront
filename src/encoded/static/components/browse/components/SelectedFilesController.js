@@ -4,7 +4,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import memoize from 'memoize-one';
 import _ from 'underscore';
-import { object, console, analytics } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { object, console, analytics, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { expFxn } from './../../util';
 
 
@@ -14,7 +14,7 @@ import { expFxn } from './../../util';
 /** Used and memoized in views which have multiple sets of selectedFiles */
 export function uniqueFileCount(selectedFiles){
     if (!selectedFiles || typeof selectedFiles !== 'object' || Array.isArray(selectedFiles)){
-        console.error("selectedFiles not in proper form or is non-existent", selectedFiles);
+        logger.error("selectedFiles not in proper form or is non-existent", selectedFiles);
         return 0;
     }
     return _.uniq(_.pluck(_.values(selectedFiles), 'accession')).length;
@@ -62,6 +62,7 @@ export class SelectedFilesController extends React.PureComponent {
             _.forEach(_.keys(initiallySelectedFiles), function(key){
                 const parts = key.split('~');
                 if (parts.length !== 3){
+                    logger.error('If supply an object as initiallySelectedFiles, it must have stringified accession triples as keys.');
                     throw new Error('If supply an object as initiallySelectedFiles, it must have stringified accession triples as keys.');
                 }
             });
@@ -71,8 +72,7 @@ export class SelectedFilesController extends React.PureComponent {
         if (Array.isArray(initiallySelectedFiles)){
             return SelectedFilesController.listToObject(initiallySelectedFiles);
         }
-
-        console.error(initiallySelectedFiles);
+        logger.error(initiallySelectedFiles);
         throw new Error('Received unexpected props.initiallySelectedFiles -');
     }
 
@@ -140,6 +140,7 @@ export class SelectedFilesController extends React.PureComponent {
     selectFile(accessionTriple, fileItem = null){
         const { context, analyticsAddFilesToCart = false } = this.props;
         function error(){
+            logger.error("Supplied accessionTriple is not a string or array of strings/arrays:", accessionTriple);
             throw new Error("Supplied accessionTriple is not a string or array of strings/arrays:", accessionTriple);
         }
         const newlyAddedFileItems = [];
@@ -148,7 +149,7 @@ export class SelectedFilesController extends React.PureComponent {
 
             function add(id, fileItemCurr = null){
                 if (typeof newSelectedFiles[id] !== 'undefined'){
-                    console.error("File already selected!", id);
+                    logger.error("File already selected!", id);
                 } else {
                     newSelectedFiles[id] = fileItemCurr || true;
                     if (fileItemCurr){
@@ -191,6 +192,7 @@ export class SelectedFilesController extends React.PureComponent {
     unselectFile(accessionTriple){
         const { context, analyticsAddFilesToCart = false } = this.props;
         function error(){
+            logger.error("Supplied accessionTriple is not a string or array of strings/arrays:", accessionTriple);
             throw new Error("Supplied accessionTriple is not a string or array of strings/arrays:", accessionTriple);
         }
 
@@ -201,7 +203,7 @@ export class SelectedFilesController extends React.PureComponent {
             function remove(id) {
                 if (typeof newSelectedFiles[id] === 'undefined'){
                     console.log(id, newSelectedFiles);
-                    console.error("File not in set!", id);
+                    logger.error("File not in set!", id);
                 } else {
                     const fileItemCurr = newSelectedFiles[id];
                     if (fileItemCurr){
@@ -279,12 +281,14 @@ export class SelectedFilesController extends React.PureComponent {
         if (Array.isArray(children)){
             return React.Children.map(children, function(child){
                 if (!React.isValidElement(child)){
+                    logger.error('SelectedFilesController expects props.children[] to be valid React component instances.');
                     throw new Error('SelectedFilesController expects props.children[] to be valid React component instances.');
                 }
                 return React.cloneElement(child, propsToPass);
             });
         } else {
             if (!React.isValidElement(children)){
+                logger.error('SelectedFilesController expects props.children to be a valid React component instance.');
                 throw new Error('SelectedFilesController expects props.children to be a valid React component instance.');
             }
             return React.cloneElement(children, propsToPass);

@@ -11,7 +11,7 @@ import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import Modal from 'react-bootstrap/esm/Modal';
 import Fade from 'react-bootstrap/esm/Fade';
 
-import { JWT, console, object, ajax, layout, navigate } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { JWT, console, object, ajax, layout, navigate, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { Alerts } from '@hms-dbmi-bgm/shared-portal-components/es/components/ui/Alerts';
 import { LinkToSelector } from '@hms-dbmi-bgm/shared-portal-components/es/components/forms/components/LinkToSelector';
 import { Detail } from '@hms-dbmi-bgm/shared-portal-components/es/components/ui/ItemDetailList';
@@ -248,6 +248,7 @@ export class HiGlassViewConfigTabView extends React.PureComponent {
             const hgc = this.getHiGlassComponent();
             const currentViewConf = this.getHiGlassViewConfig(hgc);
             if (!currentViewConf) {
+                logger.error('Could not get current view configuration.');
                 throw new Error('Could not get current view configuration.');
             }
 
@@ -293,6 +294,7 @@ export class HiGlassViewConfigTabView extends React.PureComponent {
         const currentViewConf = this.getHiGlassViewConfig(hgc);
 
         if (!currentViewConf) {
+            logger.error('Could not get current view configuration.');
             throw new Error('Could not get current view configuration.');
         }
         const track = currentViewConf.views[trackInfo.vIndex].tracks[trackInfo.track];
@@ -324,6 +326,7 @@ export class HiGlassViewConfigTabView extends React.PureComponent {
         const currentViewConf = this.getHiGlassViewConfig(hgc);
 
         if (!currentViewConf) {
+            logger.error('Could not get current view configuration.');
             throw new Error('Could not get current view configuration.');
         }
 
@@ -370,6 +373,7 @@ export class HiGlassViewConfigTabView extends React.PureComponent {
         const currentViewConf = this.getHiGlassViewConfig(hgc);
 
         if (!currentViewConf) {
+            logger.error("Could not get current view configuration.");
             throw new Error("Could not get current view configuration.");
         }
 
@@ -402,10 +406,12 @@ export class HiGlassViewConfigTabView extends React.PureComponent {
         const currentViewConf = this.getHiGlassViewConfig(hgc);
 
         if (!currentViewConf){
+            logger.error('Could not get current view configuration.');
             throw new Error('Could not get current view configuration.');
         }
 
         if (!this.havePermissionToEdit()){
+            logger.error('No edit permissions.');
             // I guess would also get caught in ajax error callback.
             throw new Error('No edit permissions.');
         }
@@ -477,6 +483,7 @@ export class HiGlassViewConfigTabView extends React.PureComponent {
         const currentViewConf = this.getHiGlassViewConfig(hgc);
 
         if (!currentViewConf){
+            logger.error('Could not get current view configuration.');
             throw new Error('Could not get current view configuration.');
         }
 
@@ -587,6 +594,7 @@ export class HiGlassViewConfigTabView extends React.PureComponent {
         const currentViewConf = this.getHiGlassViewConfig(hgc);
 
         if (!currentViewConf){
+            logger.error('Could not get current view configuration.');
             throw new Error('Could not get current view configuration.');
         }
 
@@ -693,6 +701,7 @@ export class HiGlassViewConfigTabView extends React.PureComponent {
         }
 
         if (!this.havePermissionToEdit()){
+            logger.error('No edit permissions.');
             throw new Error('No edit permissions.');
         }
 

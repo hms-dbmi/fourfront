@@ -10,7 +10,7 @@ import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 
 import { Checkbox } from '@hms-dbmi-bgm/shared-portal-components/es/components/forms/components/Checkbox';
-import { console, ajax, analytics } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, ajax, analytics, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { navigate } from './../../util';
 import {
     StatsViewController, GroupByDropdown, ColorScaleProvider,
@@ -351,9 +351,8 @@ const aggregationsToChartData = {
             commonParsingFxn.countsToTotals(combinedAggList);
             combinedAggList.forEach(function(comboBucket){ // Calculate diff from totals-to-date.
                 if (comboBucket.total < comboBucket.children[1].total){
-                    console.error('Public release count be higher than project release count!!!!', comboBucket.date, comboBucket);
-                    // TODO: Trigger an e-mail alert to wranglers from Google Analytics UI if below exception occurs.
-                    analytics.exception("StatisticsPage: Public release total is higher than project release total at date " + comboBucket.date);
+                    // TODO: Trigger an e-mail alert to wranglers from Sentry UI if below exception occurs.
+                    logger.error("StatisticsPage: Public release total is higher than project release total at date " + comboBucket.date, comboBucket);
                 }
                 comboBucket.children[0].total -= comboBucket.children[1].total;
             });
@@ -1010,6 +1009,7 @@ SubmissionsStatsView.colorScaleForPublicVsInternal = function(term){
     } else if (term === 'Public Release' || term === 'Publicly Released'){
         return '#1f77b4'; // Blue
     } else {
+        logger.error("Term supplied is not one of 'Internal Release' or 'Public Release': '" + term + "'.");
         throw new Error("Term supplied is not one of 'Internal Release' or 'Public Release': '" + term + "'.");
     }
 };

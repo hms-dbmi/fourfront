@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import _ from 'underscore';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import * as vizUtil from '@hms-dbmi-bgm/shared-portal-components/es/components/viz/utilities';
-import { console, isServerSide, analytics } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, isServerSide, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { barplot_color_cycler } from './../ColorCycler';
 import { CursorViewBounds } from './../ChartDetailCursor';
 
@@ -137,8 +137,7 @@ class Bar extends React.PureComponent {
                     "Data Error: 1 or more ExperimentSets was counted multiple times for 'group by' field '" +
                     d.bars[0].field + "'."
                 );
-                analytics.exception(errorMsg);
-                console.error(errorMsg);
+                logger.error(errorMsg);
             }
         }, 0);
     }
@@ -251,8 +250,7 @@ export class ViewContainer extends React.Component {
                     "Data Error: 1 or more ExperimentSets was counted multiple times for 'group by' field '" +
                     bars[0].field + "'."
                 );
-                analytics.exception(errorMsg);
-                console.error(errorMsg);
+                logger.error(errorMsg);
             }
         }, 0);
     }

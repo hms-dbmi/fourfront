@@ -6,7 +6,7 @@ import memoize from 'memoize-one';
 import { pie, arc } from 'd3-shape';
 import PropTypes from 'prop-types';
 
-import { console, object, schemaTransforms } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, object, schemaTransforms, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 
 // eslint-disable-next-line no-unused-vars
 import { Item } from '@hms-dbmi-bgm/shared-portal-components/es/components/util/typedefs';
@@ -62,7 +62,9 @@ export class BadgesTabView extends React.PureComponent {
             if (typeof badgeItem[propertyToTestPresenceOf] === 'string' && badgeItem[propertyToTestPresenceOf]){
                 return classificationTitle;
             }
-        } // else
+        }
+        logger.error('Badge classification cannot be determined.');
+        // else
         throw new Error('Badge classification cannot be determined.');
     }
 

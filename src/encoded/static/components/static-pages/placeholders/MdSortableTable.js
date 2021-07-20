@@ -6,7 +6,7 @@ import _ from 'underscore';
 import Markdown from 'markdown-to-jsx';
 import Draggable from 'react-draggable';
 
-import { ajax, console } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { ajax, console, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 
 export class MdSortableTable extends React.PureComponent {
 
@@ -215,7 +215,7 @@ const Utils = {
                 // Replace two or more newlines with exactly two? Not entirely sure this belongs here...
                 .replace(/\n{2,}/g, '\n\n');
         } catch (e) {
-            console.error(e);
+            logger.error(e);
             return md;
         }
         return output;

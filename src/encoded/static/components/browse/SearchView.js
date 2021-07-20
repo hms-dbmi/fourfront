@@ -7,7 +7,7 @@ import url from 'url';
 
 import { getAbstractTypeForType, getAllSchemaTypesFromSearchContext } from '@hms-dbmi-bgm/shared-portal-components/es/components/util/schema-transforms';
 import { SearchView as CommonSearchView } from '@hms-dbmi-bgm/shared-portal-components/es/components/browse/SearchView';
-import { console, isSelectAction,schemaTransforms } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, isSelectAction,schemaTransforms, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { columnExtensionMap } from './columnExtensionMap';
 import { Schemas } from './../util';
 import { TitleAndSubtitleBeside, PageTitleContainer, TitleAndSubtitleUnder, pageTitleViews, EditingItemPageTitle, StaticPageBreadcrumbs } from './../PageTitle';
@@ -61,12 +61,12 @@ export function transformedFacets(href, context, currentAction, session, schemas
     const searchItemTypes = getAllSchemaTypesFromSearchContext(context); // "Item" is excluded
 
     if (searchItemTypes.length > 0) {
-        console.info("A (non-'Item') type filter is present. Will skip filtering Item types in Facet.");
+        logger.info("A (non-'Item') type filter is present. Will skip filtering Item types in Facet.");
         // Keep all terms/leaf-types - backend should already filter down to only valid sub-types through
         // nature of search itself.
 
         if (searchItemTypes.length > 1) {
-            console.warn("More than one \"type\" filter is selected. This is intended to not occur, at least as a consequence of interacting with the UI. Perhaps have entered multiple types into URL.");
+            logger.warning("More than one \"type\" filter is selected. This is intended to not occur, at least as a consequence of interacting with the UI. Perhaps have entered multiple types into URL.");
         }
 
         return facets;
@@ -76,7 +76,7 @@ export function transformedFacets(href, context, currentAction, session, schemas
     const typeFacetIndex = _.findIndex(facets, { 'field' : 'type' });
 
     if (typeFacetIndex === -1) {
-        console.error("Could not get type facet, though some filter for it is present.");
+        logger.error('"Could not get type facet, though some filter for it is present."');
         return facets;
     }
 

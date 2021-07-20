@@ -7,7 +7,7 @@ import url from 'url';
 import memoize from 'memoize-one';
 import queryString from 'querystring';
 import { get as getSchemas, Term } from './../../../util/Schemas';
-import { object, ajax, layout, isServerSide, schemaTransforms, memoizedUrlParse } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { object, ajax, layout, isServerSide, schemaTransforms, memoizedUrlParse, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import {
     ResultRowColumnBlockValue, columnsToColumnDefinitions, HeadersRow, TableRowToggleOpenButton,
     DisplayTitleColumnWrapper, DisplayTitleColumnDefault
@@ -64,6 +64,7 @@ export class EmbeddedItemSearchTable extends React.PureComponent {
         const { totalCount } = this.state;
 
         if (typeof searchHref !== "string") {
+            logger.error("Expected a string 'searchHref'");
             throw new Error("Expected a string 'searchHref'");
         }
 
@@ -259,6 +260,7 @@ export class ItemPageTable extends React.Component {
         const useWidth = Math.max(minWidth, (width || layout.gridContainerWidth(windowWidth) || 0));
 
         if (!useWidth || isNaN(useWidth)){
+            logger.error("Make sure width or windowWidth is passed in through props.");
             throw new Error("Make sure width or windowWidth is passed in through props.");
         }
 
@@ -313,7 +315,7 @@ class ItemPageTableRow extends React.PureComponent {
         const { open } = this.state;
 
         if (!Array.isArray(columnDefinitions)) {
-            console.error('No columns defined.');
+            logger.error('No columns defined.');
             return null;
         }
 

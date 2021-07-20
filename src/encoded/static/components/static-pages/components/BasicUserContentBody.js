@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
-import { object, analytics, isServerSide } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { object, analytics, isServerSide, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { BasicStaticSectionBody } from '@hms-dbmi-bgm/shared-portal-components/es/components/static-pages/BasicStaticSectionBody';
 import { replaceString as placeholderReplacementFxn } from './../../static-pages/placeholders';
 import { HiGlassAjaxLoadContainer, isHiglassViewConfigItem } from './../../item-pages/components/HiGlass';
@@ -25,7 +25,7 @@ export class BasicUserContentBody extends React.PureComponent {
                 var storeState = store && store.getState();
                 href = storeState && storeState.href;
             }
-            analytics.exception('Client Error - ' + href + ': ' + err, false);
+            logger.error('Client Error - ' + href + ': ' + err);
         });
     }
 

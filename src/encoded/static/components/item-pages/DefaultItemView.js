@@ -9,7 +9,7 @@ import _ from 'underscore';
 import { ItemDetailList } from '@hms-dbmi-bgm/shared-portal-components/es/components/ui/ItemDetailList';
 import { Alerts } from '@hms-dbmi-bgm/shared-portal-components/es/components/ui/Alerts';
 import { LocalizedTime } from '@hms-dbmi-bgm/shared-portal-components/es/components/ui/LocalizedTime';
-import { console, object, layout, ajax, commonFileUtil, memoizedUrlParse } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, object, layout, ajax, commonFileUtil, memoizedUrlParse, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { ViewFileButton } from '@hms-dbmi-bgm/shared-portal-components/es/components/ui/FileDownloadButton';
 import { Schemas, fileUtil, typedefs } from './../util';
 
@@ -133,11 +133,11 @@ export default class DefaultItemView extends React.PureComponent {
             ajax.load('/search/?type=Item&field=@id&field=uuid&field=accession&status=replaced&accession=' + redirected_from_accession, (r)=>{
                 const ourOldItem = _.findWhere(r['@graph'], { 'accession' : redirected_from_accession });
                 if (!ourOldItem){
-                    console.error('Couldnt find correct Item in list of results.');
+                    logger.error('Couldnt find correct Item in list of results.');
                     return;
                 }
                 if (!object.itemUtil.atId(ourOldItem)){
-                    console.error('Couldnt find @id of Item.');
+                    logger.error('Couldnt find @id of Item.');
                     return;
                 }
                 Alerts.queue({
@@ -146,7 +146,7 @@ export default class DefaultItemView extends React.PureComponent {
                     'style': 'warning'
                 });
             }, 'GET', (err)=>{
-                console.error('No results found');
+                logger.error('No results found');
             });
         }
     }
@@ -246,10 +246,10 @@ export default class DefaultItemView extends React.PureComponent {
             try {
                 tabbedView.setActiveKey(nextKey);
             } catch (e) {
-                console.warn('Could not switch TabbedView to key "' + nextKey + '", perhaps no longer supported by rc-tabs.');
+                logger.warning('Could not switch TabbedView to key "' + nextKey + '", perhaps no longer supported by rc-tabs.');
             }
         } else {
-            console.error('Cannot access tabbedView.setActiveKey()');
+            logger.error('Cannot access tabbedView.setActiveKey()');
         }
     }
 

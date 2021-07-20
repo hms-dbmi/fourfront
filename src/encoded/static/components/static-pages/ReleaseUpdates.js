@@ -6,7 +6,7 @@ import _ from 'underscore';
 import url from 'url';
 import Collapse from 'react-bootstrap/esm/Collapse';
 
-import { console, object, ajax, isServerSide, JWT, analytics, memoizedUrlParse } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, object, ajax, isServerSide, JWT, analytics, memoizedUrlParse, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { BasicStaticSectionBody } from '@hms-dbmi-bgm/shared-portal-components/es/components/static-pages/BasicStaticSectionBody';
 import StaticPage from './StaticPage';
 
@@ -165,9 +165,9 @@ class SingleUpdate extends React.Component {
         // catch errors where there are no experiments in a set
         // this should not happen, but can occur with test data...
         if (!item || !item.primary_id || !Array.isArray(item.primary_id.experiments_in_set) || item.primary_id.experiments_in_set.length === 0){
-            console.error('No experiments in set (?)');
+            logger.error('No experiments in set (?)');
             if (!isServerSide()){
-                analytics.exception('Release Updates - No experiments in set ' + ((item && item.primary_id && item.primary_id['@id']) || '(unknown)') );
+                logger.error('Release Updates - No experiments in set ' + ((item && item.primary_id && item.primary_id['@id']) || '(unknown)') );
             }
             return null;
         }

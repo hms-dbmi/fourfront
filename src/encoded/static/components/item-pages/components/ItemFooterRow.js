@@ -4,7 +4,7 @@ import React from 'react';
 import _ from 'underscore';
 import { FileEntryBlock } from '../../browse/components/FileEntryBlock';
 import { expFxn, Schemas } from './../../util';
-import { console, object } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, object, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { StackedBlockTable, StackedBlock, StackedBlockList, StackedBlockName, StackedBlockNameLabel } from '@hms-dbmi-bgm/shared-portal-components/es/components/browse/components/StackedBlockTable';
 
 /**
@@ -149,6 +149,7 @@ export function ExternalReferenceLink({ uri, children }){
  */
 export const ExternalReferencesStackedTable = React.memo(function ExternalReferencesStackedTable({ context, width }) {
     if (!!context && context['@type'].indexOf('ExperimentSet') === -1 && context['@type'].indexOf('Experiment') === -1) {
+        logger.error('Only types of Experiment Set and Experiment are supported');
         throw new Error('Only types of Experiment Set and Experiment are supported');
     }
 

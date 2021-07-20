@@ -8,7 +8,7 @@ import _ from 'underscore';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 
-import { console, searchFilters, isSelectAction, memoizedUrlParse } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, searchFilters, isSelectAction, memoizedUrlParse, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { navigate } from './../../util';
 
 
@@ -56,6 +56,7 @@ export class SearchBar extends React.PureComponent {
             const browseBaseParams = navigate.getBrowseBaseParams(browseBaseState);
             _.extend(query, browseBaseParams);
         } else {
+            logger.error("No valid searchItemType provided");
             throw new Error("No valid searchItemType provided");
         }
         return query;

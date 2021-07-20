@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import url from 'url';
-import { console, isServerSide } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, isServerSide, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 
 
 let hasScriptBeenLoaded = false;
@@ -15,32 +15,32 @@ let hasScriptBeenLoaded = false;
 export default class TwitterTimelineEmbed extends React.PureComponent {
 
     static defaultProps = {
-        twitterJSURL : "https://platform.twitter.com/widgets.js"
+        twitterJSURL: "https://platform.twitter.com/widgets.js"
     };
-    
+
     constructor(props) {
-        super(props)
+        super(props);
         this.state = {
             isLoading: true
-        }
-        
+        };
+
         this.embedContainerRef = React.createRef();
     }
-    
+
     buildChromeOptions(options) {
         const { noHeader = false, noFooter = false, noBorders = false, noScrollbar = false, transparent = false } = this.props;
-        
-        options.chrome = ''
-        
-        if (noHeader)     options.chrome += ' noheader'
-        if (noFooter)     options.chrome += ' nofooter'
-        if (noBorders)    options.chrome += ' noborders'
-        if (noScrollbar)  options.chrome += ' noscrollbar'
-        if (transparent)  options.chrome += ' transparent'
-        
-        return options
+
+        options.chrome = '';
+
+        if (noHeader) options.chrome += ' noheader';
+        if (noFooter) options.chrome += ' nofooter';
+        if (noBorders) options.chrome += ' noborders';
+        if (noScrollbar) options.chrome += ' noscrollbar';
+        if (transparent) options.chrome += ' transparent';
+
+        return options;
     }
-    
+
     buildOptions() {
         const { options: propOptions, autoHeight = false, theme, linkColor, borderColor, lang } = this.props;
         let options = Object.assign({}, propOptions, { theme, linkColor, borderColor, lang })
@@ -49,13 +49,13 @@ export default class TwitterTimelineEmbed extends React.PureComponent {
         }
         return options
     }
-    
+
     /** Experimental and probably against Twitter's Developer Policy / Terms. Not used b.c. of this. */
-    cleanupTwitterScripts(){
+    cleanupTwitterScripts() {
         // Spread to array for faster lookups, else is HTMLLiveCollection and gets from
         // DOM on each reference call/check/traversal.
-        const iframesOnPage = [ ...window.document.getElementsByTagName("iframe") ];
-        const iframesToCleanup = iframesOnPage.filter(function(iframeElem){
+        const iframesOnPage = [...window.document.getElementsByTagName("iframe")];
+        const iframesToCleanup = iframesOnPage.filter(function (iframeElem) {
             const parentElemName = (iframeElem.parentElement && (iframeElem.parentElement.localName || iframeElem.parentElement.nodeName).toLowerCase()) || null;
             // In future we could gather maybe more accurately with https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver
             if (parentElemName !== "body") {
@@ -80,7 +80,7 @@ export default class TwitterTimelineEmbed extends React.PureComponent {
             window.document.body.removeChild(iframeElem);
         }
     }
-    
+
     renderWidget(options) {
         const { onLoad, sourceType, screenName, userId, ownerScreenName, slug, id, widgetId, url } = this.props;
 
@@ -98,30 +98,30 @@ export default class TwitterTimelineEmbed extends React.PureComponent {
             },
             this.embedContainerRef.current,
             options
-            ).then((element) => {
+        ).then((element) => {
 
-                if (!element) {
-                    // Happens occasionally, maybe due to network or adblocker.
-                    analytics.exception("TwitterTimelineEmbed - Couldn't load/get element");
-                    return false;
-                }
+            if (!element) {
+                // Happens occasionally, maybe due to network or adblocker.
+                logger.error("TwitterTimelineEmbed - Couldn't load/get element");
+                return false;
+            }
 
-                // `element` here is the iframe that TwitterJS created.
-                this.setState({
-                    isLoading: false
-                }, () => {
-                    this.embedContainerRef.current.style.opacity = 1;
-                    // Cleanup analytics iframes from Twitter
-                    //this.cleanupTwitterScripts();
-                });
-                if (onLoad) {
-                    onLoad(element)
-                }
-                // Prevent contents of iframe from being navigateble-to via [shift + ] tab key.
-                element.setAttribute("tabindex", -1);
-            })
+            // `element` here is the iframe that TwitterJS created.
+            this.setState({
+                isLoading: false
+            }, () => {
+                this.embedContainerRef.current.style.opacity = 1;
+                // Cleanup analytics iframes from Twitter
+                //this.cleanupTwitterScripts();
+            });
+            if (onLoad) {
+                onLoad(element);
+            }
+            // Prevent contents of iframe from being navigateble-to via [shift + ] tab key.
+            element.setAttribute("tabindex", -1);
+        });
     }
-        
+
     componentDidMount() {
         const { twitterJSURL } = this.props;
 

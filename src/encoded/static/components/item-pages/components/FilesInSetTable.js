@@ -3,7 +3,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import url from 'url';
-import { console, object, analytics } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, object, analytics, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { downloadFileButtonClick } from './../../util/file';
 
 
@@ -57,7 +57,7 @@ const LabIcon = React.memo(function LabIcon(props){
     const { lab, onMouseEnter, onMouseLeave } = props;
     const atId = lab && object.atIdFromObject(lab);
     if (!atId){
-        console.error("We need lab with @id.");
+        logger.error("We need lab with @id.");
         return (
             <span className="lab-icon no-lab">
                 <i className="icon icon-users fas"/>

@@ -6,7 +6,7 @@ import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import Dropdown from 'react-bootstrap/esm/Dropdown';
 
-import { JWT, console, object, layout, ajax, navigate, WindowEventDelegator } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { JWT, console, object, layout, ajax, navigate, WindowEventDelegator, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { Alerts } from '@hms-dbmi-bgm/shared-portal-components/es/components/ui/Alerts';
 
 import { ItemFileAttachment } from './components/ItemFileAttachment';
@@ -141,6 +141,7 @@ export class MicroMetaTabView extends React.PureComponent {
     updateContainerOffsets(){
         const containerElem = this.containerElemRef.current;
         if (!containerElem) {
+            logger.error("Couldn't get container elem");
             throw new Error("Couldn't get container elem");
         }
         // Relative to window/viewport, not document.
@@ -170,12 +171,14 @@ export class MicroMetaTabView extends React.PureComponent {
 
         const mtc = this.getMicroscopyMetadataToolComponent();
         if (!mtc || !mtc.api){
+            logger.error('Could not get API.');
             throw new Error('Could not get API.');
         }
         const microscopeStr = mtc.api.exportMicroscopeConfString();
         const microscope = microscopeStr && JSON.parse(microscopeStr);
 
         if (!microscope){
+            logger.error('Could not get current configuration.');
             throw new Error('Could not get current configuration.');
         }
 
@@ -192,12 +195,14 @@ export class MicroMetaTabView extends React.PureComponent {
 
         const mtc = this.getMicroscopyMetadataToolComponent();
         if (!mtc || !mtc.api){
+            logger.error('Could not get API.');
             throw new Error('Could not get API.');
         }
         const microscopeStr = mtc.api.exportMicroscopeConfString();
         const microscope = microscopeStr && JSON.parse(microscopeStr);
 
         if (!microscope) {
+            logger.error('Could not get current configuration.');
             throw new Error('Could not get current configuration.');
         }
 
@@ -323,6 +328,7 @@ export class MicroMetaTabView extends React.PureComponent {
         }
 
         if (!this.havePermissionToEdit()) {
+            logger.error('No edit permissions.');
             throw new Error('No edit permissions.');
         }
 
@@ -483,6 +489,7 @@ export class MicroMetaTabView extends React.PureComponent {
         const { modal } = this.state;
 
         if (!this.havePermissionToEdit()) {
+            logger.error('No edit permissions.');
             // I guess would also get caught in ajax error callback.
             // throw new Error('No edit permissions.');
             if (!session) {

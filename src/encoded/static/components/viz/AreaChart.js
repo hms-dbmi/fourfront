@@ -10,7 +10,7 @@ import ReactTooltip from 'react-tooltip';
 import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 import DropdownButton from 'react-bootstrap/esm/DropdownButton';
 
-import { console, layout, ajax, memoizedUrlParse } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, layout, ajax, memoizedUrlParse, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { format as formatDateTime } from '@hms-dbmi-bgm/shared-portal-components/es/components/ui/LocalizedTime';
 
 /**
@@ -249,6 +249,7 @@ export class GroupByController extends React.PureComponent {
         const { currentGroupBy } = state;
         if (typeof groupByOptions[currentGroupBy] === 'undefined'){
             if (typeof groupByOptions[initialGroupBy] === 'undefined'){
+                logger.error('Changed props.groupByOptions but state.currentGroupBy and props.initialGroupBy are now both invalid.');
                 throw new Error('Changed props.groupByOptions but state.currentGroupBy and props.initialGroupBy are now both invalid.');
             } else {
                 return { 'currentGroupBy' : initialGroupBy };
@@ -800,7 +801,7 @@ export class AreaChart extends React.PureComponent {
             return;
         }
         if (this.drawnD3Elements) {
-            console.error('Drawn chart already exists. Exiting.');
+            logger.error('Drawn chart already exists. Exiting.');;
             this.setState({ 'drawingError' : true });
             return;
         }
@@ -1001,7 +1002,7 @@ export class AreaChart extends React.PureComponent {
     destroyExistingChart(){
         var drawn = this.drawnD3Elements;
         if (!drawn || !drawn.svg) {
-            console.error('No D3 SVG to clear.');
+            logger.error('No D3 SVG to clear.');
             return;
         }
         drawn.svg.selectAll('*').remove();
@@ -1015,6 +1016,7 @@ export class AreaChart extends React.PureComponent {
         // If data has changed.... decide whether to re-draw graph or try to transition it.
 
         if (!this.drawnD3Elements) {
+            logger.error('No existing elements to transition.');
             throw new Error('No existing elements to transition.');
         }
 

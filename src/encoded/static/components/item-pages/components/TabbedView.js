@@ -10,10 +10,9 @@ import Tabs from 'rc-tabs';
 import TabContent from 'rc-tabs/lib/TabContent';
 import ScrollableInkTabBar from 'rc-tabs/lib/ScrollableInkTabBar';
 
-import { navigate, analytics, memoizedUrlParse } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { navigate, analytics, memoizedUrlParse, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { UserContentBodyList } from './../../static-pages/components/UserContentBodyList';
 import { standardizeUserIconString } from '@hms-dbmi-bgm/shared-portal-components/es/components/static-pages/standardizeUserIconString';
-
 
 /** This file/component is specific to 4DN portal */
 
@@ -89,7 +88,7 @@ export class TabbedView extends React.PureComponent {
                 data-tab-key={key}
                 id={'tab:' + key}
                 tab={<span className="tab" data-tab-key={key}>{ tab }</span>}
-                placeholder={placeholder || <TabPlaceHolder/> }
+                placeholder={placeholder || <TabPlaceHolder />}
                 disabled={disabled} style={style}>
                 <TabErrorBoundary tabKey={key}>{ content }</TabErrorBoundary>
             </Tabs.TabPane>
@@ -258,7 +257,7 @@ export class TabbedView extends React.PureComponent {
         if (typeof tabsInstance.setActiveKey === 'function'){
             return tabsInstance.setActiveKey(nextKey);
         } else {
-            console.error('Manually setting active tab key not currently supported...');
+            logger.error('Manually setting active tab key not currently supported...');
             return false;
         }
     }
@@ -278,7 +277,7 @@ export class TabbedView extends React.PureComponent {
         const foundContent = Array.isArray(allContentObjs) && _.findWhere(allContentObjs, { 'key' : hash });
 
         if (!foundContent){
-            console.error('Could not find', hash);
+            logger.error('Could not find', hash);
             return false;
         }
 
@@ -365,7 +364,7 @@ class TabErrorBoundary extends React.Component {
         this.setState({ 'hasError': true, 'errorInfo': info }, () => {
             // `window` is only available when we're mounted / client-side.
             const href = (window && window.location.href) || "(Unknown URL)";
-            analytics.exception('Client Error - ' + href + ' (#' + tabKey + '): ' + err, true);
+            logger.error( 'Client Error - ' + href + ' (#' + tabKey + '): ' + err);
         });
     }
 

@@ -9,14 +9,14 @@ import ReactTooltip from 'react-tooltip';
 var serialize = require('form-serialize');
 import { detect as detectBrowser } from 'detect-browser';
 import jsonScriptEscape from '../libs/jsonScriptEscape';
-import { content_views as globalContentViews, portalConfig, getGoogleAnalyticsTrackingID, analyticsConfigurationOptions } from './globals';
+import { content_views as globalContentViews, portalConfig, getGoogleAnalyticsTrackingID, analyticsConfigurationOptions, sentryDsn } from './globals';
 import ErrorPage from './static-pages/ErrorPage';
 import { NavigationBar } from './navigation/NavigationBar';
 import { Footer } from './Footer';
 import { store } from './../store';
 
 import { Alerts } from '@hms-dbmi-bgm/shared-portal-components/es/components/ui/Alerts';
-import { ajax, JWT, console, isServerSide, object, layout, analytics, isSelectAction, memoizedUrlParse, WindowEventDelegator } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { ajax, JWT, console, isServerSide, object, layout, analytics, isSelectAction, memoizedUrlParse, WindowEventDelegator, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { Schemas, SEO, typedefs, navigate } from './util';
 import { requestAnimationFrame as raf } from '@hms-dbmi-bgm/shared-portal-components/es/components/viz/utilities';
 
@@ -223,6 +223,12 @@ export default class App extends React.PureComponent {
             );
         }
 
+        //Load up sentry io
+        const dsn = sentryDsn(href);
+        if (dsn) {
+            logger.initializeLogger(dsn);
+        }
+
         // Load schemas into app.state, access them where needed via props (preferred, safer) or this.context.
         this.loadSchemas();
 
@@ -381,7 +387,7 @@ export default class App extends React.PureComponent {
         // Handle list of values, e.g. if `currentAction=selection&currentAction=selection&currentAction=edit` or something is in URL.
         // We should __not__ get an array here and is glitch, but if so, lets fallback and choose _1st_ non-null item.
         if (Array.isArray(action)){
-            console.error("Received unexpected list for `currentAction` URI param", action);
+            logger.error("Received unexpected list for `currentAction` URI param", action);
             action = _.filter(action);
             action = (action.length > 0 ? action[0] : null);
         }
@@ -905,7 +911,7 @@ export default class App extends React.PureComponent {
                     if (response.code === 404){
                         // This may not be caught as a server or network error.
                         // If is explicit 404 (vs just 0 search results), pyramid will send it as 'code' property.
-                        analytics.exception('Page Not Found - ' + targetHref);
+                        logger.error('Page Not Found - ' + targetHref);
                     }
                 });
 
@@ -939,11 +945,11 @@ export default class App extends React.PureComponent {
                 console.error('Error in App.navigate():', err);
 
                 if (err.status === 500){
-                    analytics.exception('Server Error: ' + err.status + ' - ' + targetHref);
+                    logger.error('Server Error: ' + err.status + ' - ' + targetHref);
                 }
 
                 if (err.status === 404){
-                    analytics.exception('Page Not Found - ' + targetHref);
+                    logger.error('Page Not Found - ' + targetHref);
                 }
 
                 if (err.message === 'HTTPForbidden'){
@@ -954,10 +960,10 @@ export default class App extends React.PureComponent {
                 } else if (typeof err.status === 'number' && [502, 503, 504, 505, 598, 599, 444, 499, 522, 524].indexOf(err.status) > -1) {
                     // Bad connection
                     Alerts.queue(Alerts.ConnectionError);
-                    analytics.exception('Network Error: ' + err.status + ' - ' + targetHref);
+                    logger.error('Network Error: ' + err.status + ' - ' + targetHref);
                 } else {
                     Alerts.queue(Alerts.ConnectionError);
-                    analytics.exception('Unknown Network Error: ' + err.status + ' - ' + targetHref);
+                    logger.error('Unknown Network Error: ' + err.status + ' - ' + targetHref);
                     // Unknown/unanticipated error: Bubble it up (won't break app).
                     throw err;
                 }
@@ -1396,7 +1402,7 @@ class BodyElement extends React.PureComponent {
     componentDidCatch(err, info){
         const { href } = this.props;
         this.setState({ 'hasError' : true, 'errorInfo' : info }, ()=>{
-            analytics.exception('Client Error - ' + href + ': ' + err, true);
+            logger.error('Client Error - ' + href + ': ' + err, true);
             // Unset app.historyEnabled so that user may navigate backward w/o JS.
             if (window && window.fourfront && window.fourfront.app){
                 window.fourfront.app.historyEnabled = false;
@@ -1785,7 +1791,7 @@ class ContentErrorBoundary extends React.Component {
     componentDidCatch(err, info){
         const { href } = this.props;
         this.setState({ 'hasError' : true, 'errorInfo' : info }, ()=>{
-            analytics.exception('Client Error - ' + href + ': ' + err, true);
+            logger.error('Client Error - ' + href + ': ' + err);
         });
     }
 

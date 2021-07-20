@@ -7,7 +7,7 @@ import memoize from 'memoize-one';
 
 import Collapse from 'react-bootstrap/esm/Collapse';
 import { FlexibleDescriptionBox } from '@hms-dbmi-bgm/shared-portal-components/es/components/ui/FlexibleDescriptionBox';
-import { console, object, isServerSide, layout, commonFileUtil, schemaTransforms } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, object, isServerSide, layout, commonFileUtil, schemaTransforms, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { expFxn, Schemas, typedefs } from './../util';
 
 import { HiGlassAjaxLoadContainer } from './components/HiGlass/HiGlassAjaxLoadContainer';
@@ -947,7 +947,7 @@ class SupplementaryFilesTabView extends React.PureComponent {
                         return (object.itemUtil.atId(existFile) || 'a') === (object.itemUtil.atId(f) || 'b');
                     });
                     if (duplicateExistingFile){
-                        console.error('Found existing/duplicate file in ExperimentSet other_processed_files of Experiment File ' + f['@id']);
+                        logger.error('Found existing/duplicate file in ExperimentSet other_processed_files of Experiment File ' + f['@id']);
                         // TODO send to analytics?
                     } else {
                         collectionsByTitle[title].files.push(f);

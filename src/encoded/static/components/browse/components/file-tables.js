@@ -10,7 +10,7 @@ import DropdownItem from 'react-bootstrap/esm/DropdownItem';
 
 import { StackedBlockTable, StackedBlock, StackedBlockList, StackedBlockName, StackedBlockNameLabel } from '@hms-dbmi-bgm/shared-portal-components/es/components/browse/components/StackedBlockTable';
 
-import { console, isServerSide, analytics, object, commonFileUtil, navigate, memoizedUrlParse } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, isServerSide, analytics, object, commonFileUtil, navigate, memoizedUrlParse, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 
 import { FileEntryBlock, FilePairBlock, FileHeaderWithCheckbox, handleFileCheckboxChangeFxn } from './FileEntryBlock';
 import { SelectedFilesController } from './SelectedFilesController';
@@ -756,7 +756,7 @@ export class ProcessedFilesStackedTable extends React.PureComponent {
             filesGroupedByExperimentOrGlobal.global = groupedFiles.experiment_sets[expSetAccessions[0]].slice();
         }
         if (expSetAccessions.length > 1) {
-            console.error('Theres more than 1 ExpSet for these files/sets - ', expSetAccessions, groupedFiles);
+            logger.error('Theres more than 1 ExpSet for these files/sets - ', expSetAccessions, groupedFiles);
         }
 
         return _.pairs(filesGroupedByExperimentOrGlobal).sort(function ([ expAAccesion, filesForExpA ], [ expBAccesion, filesForExpB ]){

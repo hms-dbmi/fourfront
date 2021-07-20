@@ -8,7 +8,7 @@ import _ from 'underscore';
 import memoize from 'memoize-one';
 
 import { Checkbox } from '@hms-dbmi-bgm/shared-portal-components/es/components/forms/components/Checkbox';
-import { console, object, ajax, analytics, memoizedUrlParse } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, object, ajax, analytics, memoizedUrlParse, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { requestAnimationFrame as raf } from '@hms-dbmi-bgm/shared-portal-components/es/components/viz/utilities';
 
 import { Schemas, typedefs } from './../../../util';
@@ -81,6 +81,7 @@ export class SelectAllFilesButton extends React.PureComponent {
     handleSelectAll(evt){
         const { selectFile, selectedFiles, resetSelectedFiles, href, context, totalFilesCount } = this.props;
         if (typeof selectFile !== 'function' || typeof resetSelectedFiles !== 'function'){
+            logger.error("No 'selectFiles' or 'resetSelectedFiles' function prop passed to SelectedFilesController.");
             throw new Error("No 'selectFiles' or 'resetSelectedFiles' function prop passed to SelectedFilesController.");
         }
 

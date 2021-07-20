@@ -4,7 +4,7 @@ import React from 'react';
 import _ from 'underscore';
 import memoize from 'memoize-one';
 
-import { console, object } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, object, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { ItemDetailList } from '@hms-dbmi-bgm/shared-portal-components/es/components/ui/ItemDetailList';
 
 import { Term } from './../util/Schemas';
@@ -38,7 +38,7 @@ export function mapEmbeddedFilesToStepRunDataIDs(nodes, uuidFileMap){
         try {
             fileUUID = object.assertUUID(n.meta.run_data.file);
         } catch (e) {
-            console.error(e);
+            logger.error(e);
             return n;
         }
 
@@ -67,14 +67,15 @@ export function allFilesForWorkflowRunMappedByUUID(item){
                 function(fileContainer){
                     var file = fileContainer.value || fileContainer.value_qc || null; // quality_metrics would be present under value_qc.
                     if (!file || typeof file !== 'object') {
-                        console.error("No file ('value' property) embedded for: ", fileContainer);
+                        logger.error("No file ('value' property) embedded for: ", fileContainer);
                         return false;
                     }
                     if (typeof file.uuid !== 'string' && typeof file.error === 'string'){
-                        console.error('Error on file for argument ' + (fileContainer.workflow_argument_name || 'Unknown') + ': ' + file.error);
+                        logger.error('Error on file for argument ' + (fileContainer.workflow_argument_name || 'Unknown') + ': ' + file.error);
                         return false;
                     }
                     if (typeof file.uuid !== 'string') {
+                        logge.error("We need to have Files' UUID embedded in WorkflowRun-> output_files, input_files, & output_quality_metric in order to have file info appear on workflow viz nodes.");
                         throw new Error("We need to have Files' UUID embedded in WorkflowRun-> output_files, input_files, & output_quality_metric in order to have file info appear on workflow viz nodes."); // This actually shouldn't ever occur as we get UUIDs embedded by default now, yes?
                     }
                     return true;

@@ -9,7 +9,7 @@ import _ from 'underscore';
 import Modal from 'react-bootstrap/esm/Modal';
 import FormControl from 'react-bootstrap/esm/FormControl';
 
-import { console, object, JWT, ajax, navigate } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, object, JWT, ajax, navigate, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { LocalizedTime } from '@hms-dbmi-bgm/shared-portal-components/es/components/ui/LocalizedTime';
 import { Alerts } from '@hms-dbmi-bgm/shared-portal-components/es/components/ui/Alerts';
 import { EditableField, FieldSet } from '@hms-dbmi-bgm/shared-portal-components/es/components/forms/components/EditableField';
@@ -77,6 +77,7 @@ class SyncedAccessKeyTable extends React.PureComponent {
         const { user } = this.props;
         const { loadingStatus } = this.state;
         if (!user || !user.uuid || !object.isUUID(user.uuid)){
+            logger.error("No user, or invalid user.uuid supplied.");
             throw new Error("No user, or invalid user.uuid supplied.");
         }
 
@@ -191,6 +192,7 @@ class SyncedAccessKeyTable extends React.PureComponent {
                     return sItem['@id'] === item['@id'];
                 });
                 if (typeof foundItemIdx !== 'number' || foundItemIdx === -1){
+                    logger.error('Couldn\'t find deleted key - ' + sItem['@id']);
                     throw new Error('Couldn\'t find deleted key - ' + sItem['@id']);
                 }
                 const foundItem = prevKeys[foundItemIdx];

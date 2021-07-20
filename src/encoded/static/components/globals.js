@@ -5,7 +5,7 @@ import url from 'url';
 import Registry from '@hms-dbmi-bgm/shared-portal-components/es/components/navigation/components/Registry';
 import { console, isServerSide } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 import { default as analyticsConfigurationOptions } from "./../ga_config.json";
-
+import { default as sentryConfigurationOptions } from "./../sentry_config.json";
 /**
  * Top bar navigation & link schema definition.
  */
@@ -60,11 +60,25 @@ const getGoogleAnalyticsTrackingID = memoize(function(href){
     return analyticsConfigurationOptions.hostnameTrackerIDMapping.default || null;
 });
 
+const sentryDsn = memoize(function (href) {
+    if (!href && !isServerSide()) {
+        href = window.location.href;
+    }
+    const { host } = url.parse(href);
+    const hostnames = Object.keys(sentryConfigurationOptions.hostnameDNSMapping);
+    for (var i = 0; i < hostnames.length; i++) {
+        if (host.indexOf(hostnames[i]) > -1) {
+            return sentryConfigurationOptions.hostnameDNSMapping[hostnames[i]];
+        }
+    }
+    return sentryConfigurationOptions.hostnameDNSMapping.default || null;
+});
 
 export {
     analyticsConfigurationOptions,
     portalConfig,
     getGoogleAnalyticsTrackingID,
     content_views,
-    panel_views
+    panel_views,
+    sentryDsn
 };

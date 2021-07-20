@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import { console, isServerSide } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
+import { console, isServerSide, logger } from '@hms-dbmi-bgm/shared-portal-components/es/components/util';
 
 export class ColorCycler {
 
@@ -59,7 +59,7 @@ export class ColorCycler {
         var orderedColorList = this.props.colorPalette;
 
         if (!orderedColorList) {
-            console.error("No palette found on ColorCycler instance.");
+            logger.error("No palette found on ColorCycler instance.");
             return objects;
         }
 
