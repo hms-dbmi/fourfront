@@ -2,6 +2,18 @@
 
 describe('Deployment/CI Search View Tests', function () {
 
+    var testItemsToDelete = [];
+
+    function addAtIdToDeletedItems() {
+        cy.get('script[data-prop-name=context]').wait(1000).then(function ($context) {
+            const context = $context.text();
+            const contextData = JSON.parse(context);
+            const atId = contextData['@id'];
+            console.log('DELETING atId', atId);
+            testItemsToDelete.push(atId);
+        });
+    }
+
     context('/search/?type=Item', function () {
 
         before(function(){ // beforeAll
@@ -80,16 +92,105 @@ describe('Deployment/CI Search View Tests', function () {
 
         // TODO test facets
 
-        it('Can add new Microsope Configurations', function(){
+        // it('/microscope-configurations/ should redirect to /search/?type=MicroscopeConfiguration', function(){
+        //     cy.visit('/microscope-configurations/').location('search').should('include', 'type=MicroscopeConfiguration').end()
+        //         .location('pathname').should('include', '/search/');
+        // });
+        let microscopeDescription;
+        const standType = "Inverted";
+
+        it('Can add new tier-1 microscope configuration', function(){
 
             cy.login4DN({ 'email' : '4dndcic@gmail.com', 'useEnvToken' : false }).end()
                 .visit('/search/?type=MicroscopeConfiguration').end()
                 .get('.search-results-container .search-result-row').then(($searchResultElems)=>{
                     expect($searchResultElems.length).to.be.greaterThan(0);
                 }).end()
-                .get('.above-results-table-row .results-count.box button.btn-xs').contains("Create New Configuration");
+                .get('.above-results-table-row .results-count.box button.btn-xs').contains("Create New Configuration").click().end().wait(1000)
+                .get('a.dropdown-item').contains('Tier 1').click().end();
+
+            // set microscope conf. name
+            const identifier = ("mc-test-" + new Date().getTime());
+            cy.get('.modal-dialog input#microscope_name.form-control').focus().type(identifier).wait(100).end();
+
+            // set microscope conf. description
+            microscopeDescription = "tier-1 microscope conf. description";
+            cy.get('.modal-dialog input#microscope_description.form-control').focus().type(microscopeDescription).wait(100).end();
+
+            // set microscope conf. stand type
+            cy.get('button#validation_tier.dropdown-toggle.btn.btn-primary').contains('Select Stand Type').click().end().wait(1000)
+                .get('a.dropdown-item').contains(standType).click().end().wait(1000);
+
+            // submit new microscope conf. creation
+            cy.get('button.btn.btn-success').contains('Submit').click().end().wait(1000);
+
+            // get response and store atId (to delete item at the end of test)
+            addAtIdToDeletedItems();
         });
 
+        it('Verify created microscope\'s tier number and stand matches', function (){
+            //Click edit buttton
+            cy.get('div.micrometa-container #microscopy-app-container .btn.btn-primary.btn-lg').should('contain', 'Edit microscope').first().click().end().wait(1000);
+
+            //Verify tier is 1
+            cy.get('div.form-group div.mb-0.form-group input#rjsfPrefix_Tier').should('have.value', '1');
+
+            //Verify stand
+            cy.get('li#react-tabs-2').contains(standType + 'MicroscopeStand');
+
+            //Edit popup cancel
+            cy.get('div.form-group div.mb-0.form-group input#rjsfPrefix_Description').should('have.value', microscopeDescription)
+                .get('div#microscopy-app-overlays-container div div div div button.btn.btn.btn-primary.btn-lg').contains('Cancel').click().end();
+        });
+
+        it('Can save as microscope configuration', function () {
+            cy.login4DN({ 'email': '4dndcic@gmail.com', 'useEnvToken': true }).wait(1000);
+
+            //Clone microscope data
+            cy.get("div.dropup button#dropdown-basic-button.dropdown-toggle.btn.btn-dark.btn-lg div").contains('Save').click().wait(1000).end()
+                //Clone success save message
+                // eslint-disable-next-line no-useless-escape
+                .get("a#Save\\ as\\ new\\ microscope.dropdown-item").click().wait(1000).get('h4.alert-heading.mt-0.mb-05').should('contain.text', "'s copy").end().wait(1000);
+
+            // get response and store atId (to delete item at the end of test)
+            addAtIdToDeletedItems();
+        });
+
+        it('Delete microscope configuration', function () {
+
+            // Log in _as admin_.
+            cy.login4DN({ 'email': '4dndcic@gmail.com', 'useEnvToken': true }).wait(1000);
+
+            // Delete microscope configuration
+            cy.wrap(testItemsToDelete).each(function (testItemURL) { // Synchronously process async stuff.
+                console.log('DELETING', testItemURL);
+                cy.getCookie('jwtToken')
+                    .then((cookie) => {
+                        const token = cookie.value;
+                        cy.request({
+                            method: "DELETE",
+                            url: testItemURL,
+                            headers: {
+                                'Authorization': 'Bearer ' + token,
+                                "Content-Type": "application/json",
+                                "Accept": "application/json"
+                            }
+                        }).end().request({
+                            method: "PATCH",
+                            url: testItemURL,
+                            headers: {
+                                'Authorization': 'Bearer ' + token,
+                                "Content-Type": "application/json",
+                                "Accept": "application/json"
+                            },
+                            body: JSON.stringify({ "tags": ["deleted_by_cypress_test"] })
+                        });
+                    });
+            });
+
+            // Empty the array now that we're done.
+            testItemsToDelete = [];
+        });
     });
 
     context('Search Box in Navigation', function(){
